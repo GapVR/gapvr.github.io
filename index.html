@@ -232,6 +232,10 @@
 			else
 				btn.innerHTML = ' △ ';
 		}
+		if (window.location.hash)
+		{
+			toggleScreen();
+		}
 		btn.addEventListener('click', toggleScreen);
 	</script>
 </body>
