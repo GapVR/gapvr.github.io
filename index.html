@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!-- This page is self-contained. Save it and use it as a screensaver! -->
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ぎん（Ｇｉｎ） // hyperlinks</title>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		body { background: black; font-family: 'Lucida Console', 'MS Gothic', 'Courier New', monospace; }
+		#starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+		.overlay { position: relative; width: 100%; min-height: 100vh; z-index: 1; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+		.container { width: 100%; max-width: 480px; margin: 0 auto; padding: 2rem; pointer-events: auto; overflow-x: auto; }
+		.card { background: rgba(10, 10, 15, 0.7); padding: 1.5rem 1.25rem; min-width: min-content; border-radius: 4px; transition: opacity 0.2s ease, visibility 0.2s ease; }
+		/* class to hide the card */
+		.card.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+		.profile { width: 64px; height: 64px; margin: 0 auto 0.75rem auto; display: block; object-fit: cover; border-radius: 4px; }
+		.username { text-align: center; color: #ffffff; font-size: 1.1rem; letter-spacing: 2px; font-weight: normal; display: inline-block; width: auto; margin: 0.5rem 0 1.5rem 0; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(100, 100, 110, 0.25); }
+		.username-wrapper { text-align: center; }
+		.links { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.375rem; }
+		.link-item { border: 1px solid rgba(110, 100, 150, 0.3); display: flex; align-items: center; gap: 0.625rem; padding: 0.5rem 0.65rem; background: transparent; text-decoration: none; transition: all 0.13s ease; padding: 0.76em; }
+		.link-item:hover { background: #f0ecf4; border-color: #f0ecf4; }
+		.link-item:hover .link-site { color: #000000; }
+		.link-item:hover .link-desc { color: #333333; }
+		.link-item:hover .link-icon-invert { filter: invert(0); }
+		.link-icon { width: 18px; height: 18px; object-fit: contain; flex-shrink: 0; }
+		.link-icon-invert { width: 18px; height: 18px; object-fit: contain; flex-shrink: 0; filter: invert(1); }
+		.link-labels { display: flex; align-items: baseline; justify-content: space-between; min-width: 0; flex-grow: 1; }
+		.link-site { color: #f0f0f0; font-size: 0.85rem; letter-spacing: 0.5px; font-weight: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+		.link-desc { color: #a0a0a0; font-size: 0.7rem; letter-spacing: 0.5px; font-weight: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+		hr { border: none; border-top: 1px solid rgba(100, 100, 110, 0.25); margin: 1.5rem 0; }
+		.update { text-align: center; font-size: 0.7rem; color: #888888; margin-top: 1.5rem; letter-spacing: 1px; }
+		.toggle-screen { position: fixed; bottom: 20px; right: 20px; z-index: 10; background: rgba(255, 255, 255, 0.05);; border: 0; color: #ccc; font-size: 0.5rem; padding: 5px; transition: all 0.2s ease; }
+		.toggle-screen:hover { background: rgba(50, 50, 70, 0.9); color: white; border-color: rgba(255, 255, 255, 0.5); }
+	</style>
+</head>
+<body>
+	<canvas id="starfield"></canvas>
+	<div class="overlay">
+		<div class="container">
+			<div class="card" id="mainCard">
+				<img class="profile" src="https://avatars.githubusercontent.com/u/93127634?v=4" id="profile-pic">
+				<div class="username-wrapper"><div class="username">ぎん（Ｇｉｎ）</div></div>
+				<div class="links">
+				<a href="https://github.com/GapVR" class="link-item" target="_blank" rel="noopener noreferrer"><img src="DATA:IMAGE/x-icon;base64,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AAAAAAAAKysrBhYWGUcWFhiVFRUYvxUVGNkWFhfzFhYX8xUVGNkVFRi/FhYYlRYWGUcrKysGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" class="link-icon-invert"><div class="link-labels"><span class="link-site">Github</span> <span class="link-desc">GapVR</span></div></a>
+				<a href="https://x.com/gin_vrc" class="link-item" target="_blank" rel="noopener noreferrer"><img src="DATA:IMAGE/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB7ElEQVR4Ae1XMZLCMAwUdw0ldJQ8ATpKnkBJByUd8ALyA/gBdJTQUtHS8QT4AaRM5ctmThmfogQ75CYNmhGTbGJr45Vk0yAiQzXaF9VsHwIZAofDgYwxqo9GI/K16/X6cqyxvdVqmdvtZh6PhwmCIHXcw7vdrpFj8ny9XhsYxhe8lwWHw2EycLFYpNh0Ok2w8/nsFHy1WrkE1wnAN5tNMkGv10ux3W6XIab5fD5P3ovldCGrP2Ap4LiW8uRJAcIwe1wpArYU0FJimhQgxaQ9cqX4BZYCgSVmS8HBfRP1JQEsY1xKGSmAcTC+l0QrIWDraicVMBBA4O1265ScpQnAMbkMwphjub1HAI7EkxoDK7n0/gQQGATsCmDMo+z++Hf8E5CjPZ9PiqKIZrMZhWFIl8slxcbjMTWbTTqdTuRrXoz5i2WXRIL+WxWw2+Uml13rnJUT4K9E9nMFaF3SxiojoO1u2rJzl4z3/+oIcHBMLiUp2rDe3ozg+BIYtNee87KjGzLGndPx7JD/0K7xog2Gl30ymaSY1jm9CPhsrXnnBK1zOhHgCWWtF7l2TtA6p3S1E+73exoMBrRcLul4PJKL3e93arfbSUeMA1O/36eYPHU6nWQu7pyaqRlfZnezV05anhSN34va7PPXrHYCP+VaTG3LBV1KAAAAAElFTkSuQmCC" class="link-icon"><div class="link-labels"><span class="link-site">X</span> <span class="link-desc">@gin_vrc</span></div></a>
+				<a href="https://x.com/gin_sideb" class="link-item" target="_blank" rel="noopener noreferrer"><img src="DATA:IMAGE/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB7ElEQVR4Ae1XMZLCMAwUdw0ldJQ8ATpKnkBJByUd8ALyA/gBdJTQUtHS8QT4AaRM5ctmThmfogQ75CYNmhGTbGJr45Vk0yAiQzXaF9VsHwIZAofDgYwxqo9GI/K16/X6cqyxvdVqmdvtZh6PhwmCIHXcw7vdrpFj8ny9XhsYxhe8lwWHw2EycLFYpNh0Ok2w8/nsFHy1WrkE1wnAN5tNMkGv10ux3W6XIab5fD5P3ovldCGrP2Ap4LiW8uRJAcIwe1wpArYU0FJimhQgxaQ9cqX4BZYCgSVmS8HBfRP1JQEsY1xKGSmAcTC+l0QrIWDraicVMBBA4O1265ScpQnAMbkMwphjub1HAI7EkxoDK7n0/gQQGATsCmDMo+z++Hf8E5CjPZ9PiqKIZrMZhWFIl8slxcbjMTWbTTqdTuRrXoz5i2WXRIL+WxWw2+Uml13rnJUT4K9E9nMFaF3SxiojoO1u2rJzl4z3/+oIcHBMLiUp2rDe3ozg+BIYtNee87KjGzLGndPx7JD/0K7xog2Gl30ymaSY1jm9CPhsrXnnBK1zOhHgCWWtF7l2TtA6p3S1E+73exoMBrRcLul4PJKL3e93arfbSUeMA1O/36eYPHU6nWQu7pyaqRlfZnezV05anhSN34va7PPXrHYCP+VaTG3LBV1KAAAAAElFTkSuQmCC" class="link-icon"><div class="link-labels"><span class="link-site">X</span> </div></a>
+				<a href="https://www2.booth.pm" class="link-item" target="_blank" rel="noopener noreferrer"><img src="DATA:IMAGE/x-icon;base64,AAABAAEAICAQAAEABADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAABILAAASCwAAEAAAABAAAABQTfwA////AHx6/QDT0/4AqKb+AFtY/ADe3v4A9PT/AOnp/wBxbv0Avbz+AGZj/ACHhf0AnZv9ALKx/gCSkP0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhEQAAAAAABBEAAAAAAAAAIREAAAAAAAQRAAAAAAAAACERAAAAAAAEEQAAAAAAAAAhEQAAAAAABhEAAAAAAAAAIREAAAAAACERAAAAAAAAACERwAAAAAVhEQAAAAAAAAAhEWUAAABWEREAAAAAAAAAIREWsABUcRERAAAAAAAAACERERg2ERERETOQAAAAAEcRERERERERERERIAAAAAARERERERERERERESAAAAAAEREREREREREREREgAAAAABERERERERERERERIAAAAAARERERERERERERHgAAAAAAERgREREREREREfAAAAAAABEdEREREREREREAAAAAAAAREjEREREREREXAAAAAAAAERLxERERERERFAAAAAAFIhESCBEReBEREWAAAAAAAhEREgQREU0REREgAAAAAAIRERILERFVcREeAAAAAAACERESAKEaAKERdQAAAAAAAAAzOQAhGwCREcAAAAAAAAAAAAAAApAAAxMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==" class="link-icon"><div class="link-labels"><span class="link-site">Booth.pm</span> <span class="link-desc">www2.booth.pm</span></div></a>
+				<a href="https://hub.chilloutvr.net/social/profile?guid=0b9b6d38-f984-56a7-b276-b08e154c41b0" class="link-item" target="_blank" rel="noopener noreferrer"><img src="DATA:IMAGE/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAACHklEQVR4AWJ4YkZbNGrBqAWjFgAIqQYoucEgXNu2bdu2bbt9rPFQ27Zt27btu3Ad+/6s4t2JM/jG9gB1U+Djm/m3zCEOryYOryGOqCc+pW1UAGqfD/zXzkOrAgdXBHYvdE3rntAgTRwAbExj/tcnxUIilpDYNFNIhjy3S3Eg4f93dHANRwDXjF6ywDspB3YtADLo0FqKJCnOJAU8cPcSNgBI95IyQ8XQlFkG7lace/tQiUf09SNWABD4TqMnkuRBzRlI/GnIG/KXOLKWOLqOOLaee/dIc4VjEhqmMQLUTQ5C0zSh30ivMmpJhtfV/lsIVFWrfKscehbcqZAGEGoMPdu7bEJU07t8kq119tlNVbFdXve8geAkT23RRS8mNskQE2CpBpBQPxX/4725HqKADKgMuNTVQzbYL25ZalA3hRTw6lL0B+lVNhh4dnDHJ7YymSBPbFITOKqhIstWbGxkfZsiU+d3mYosuhGJ8EJt8wAufee0xvF7oNY5gU/cp+eWTqPds/vZzwHSw75NyTPbw03MseEErpyihjWuGff+MThF9L8GQBNwx4KOg+ae2RsEaJkcER1cHXADexeDL/7XR1AVvRbSr6Jei7q0zxEg5Jfw54sJgji+AbASm2UWcQif3Ma6voij63VpkrERdWMuu3op8Qkt/JvnEAdX+jdMx0bUi7LQgVWNwtoQhBdf0sAl47vGBHoW16MWjFowagEAmNgn/uh2GbwAAAAASUVORK5CYII=" class="link-icon"><div class="link-labels"><span class="link-site">ChilloutVR</span> <span class="link-desc">Ginnungagap</span></div></a>
+				<a href="https://resonite.com" class="link-item" target="_blank" rel="noopener noreferrer"><img src="DATA:IMAGE/x-icon;base64,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" class="link-icon"><div class="link-labels"><span class="link-site">Resonite</span> <span class="link-desc">Ginnungagap</span></div></a>
+				<a href="https://vrchat.com/home/user/usr_8e4a20f4-5516-4b96-8d90-fe862226c510" class="link-item" target="_blank" rel="noopener noreferrer"><img src="DATA:IMAGE/x-icon;base64,AAABAAEAICAAAAEAIACoEAAAFgAAACgAAAAgAAAAQAAAAAEAIAAAAAAAgBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAACSAgIC/AQEBP0AAAB7AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAdggICPyCgoL/UlJS/wAAAMcAAAANAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE0AAADubW1t//z8/P9zc3P/AAAAzgAAABEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqAAAA1UVFRf/p6en//////3BwcP8AAADMAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEgAAALMlJSX/z8/P////////////cHBw/wAAAMsAAAAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAACKDw4P/6urq/////////////////9wcHD/AAAAywAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXwICAvWCgoL//v7+/////////////////3BwcP8AAADLAAAADQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACQAAAC0AAAA+AAAAPgAAAD4AAAA+AAAAPgAAAD4AAAA+AAAAPgAAAD4AAAA+AAAAPgAAAD4AAAA+AAAAPQAAAFoAAADhV1dX//Ly8v//////////////////////cHBw/wAAANYAAAAwAAAAAgAAAAAAAAAAAAAAAAAAAC4AAACuAAAA6wUFBfUFBQX1BQUF9QUFBfUFBQX1BQUF9QUFBfUFBQX1BQUF9QUFBfUFBQX1BQUF9QUFBfUFBQX1AwMD+jY2Nv/d3d3///////////////////////////9zc3P/AAAA/QAAAOQAAACRAAAAFwAAAAAAAAAcAAAAxykpKf+SkpL/tLS0/7S0tP+0tLT/tLS0/7S0tP+0tLT/tLS0/7S0tP+0tLT/tLS0/7S0tP+0tLT/tLS0/7S0tP+zs7P/2NjY/////////////////////////////////9XV1f+wsLD/fHx8/xQUFP8AAACdAAAABwAAAGwSEhL/vb29////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////jo6O/wICAvEAAAA6AAAAlzc3N//y8vL////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////S0tL/ExMT/wAAAF8AAACcPT09//T09P/////////////////////+/////////////////Pz8/////////////////////////////////////////////////////////////////////////////////////////////////9bX1v8XFxf/AAAAZAAAAJw9PT3/9PT0////////////////////////////+/v7/5mZmf9RUVH/h4eH//X19f/////////////////y8vL/iIiI/3x8fP/p6en////////////9/f3/lJSU/3Fxcf/j4+P/////////////////1tbW/xYXFv8AAABjAAAAnD09Pf/09PT////////////////////////////W1tb/GBgY/wAAAP8KCgr/wMDA/////////////////9TU1P8SEhL/BAQE/729vf///////////8zMzP8VFRX/AAAA/5+en//////////////////W1tb/FhcW/wAAAGMAAACcPT09//T09P7//////////////////////////5ycnP8BAQH/AAAA/wAAAP9/f3//////////////////09PT/xQUFP8HBwf/vLy8///////8/Pz/ZmZm/wAAAP8kJCT/2tra/////////////////9bW1v8WFxb/AAAAYwAAAJw9PT3/9PT0/v/////////////////////8/Pz/WVpZ/wAAAP8lJSX/AQEB/0BAQP/09PT////////////T09P/FBQU/wcHB/+8vLz//////8fHx/8UFBT/AAAA/4iIiP//////////////////////1tbW/xYXFv8AAABjAAAAnD09Pf/09PT//////////////////////+Hh4f8jIyP/CgoK/4uMi/8XGBf/EhIS/87Ozv///////////9PT0/8UFBT/BwcH/7/Av///////YGFg/wAAAP8wMDD/5eXl///////////////////////W1tb/FhcW/wAAAGMAAACcPT09//T09P//////////////////////ra2t/wICAv8pKSn/29vb/0BAQP8AAAD/kpKS////////////09PT/xQUFP8EBQT/iIiI/5qamv8RERH/AQEB/5WVlf///////////////////////////9bW1v8WFxb/AAAAYwAAAJw9PT3/9PT0//////////////////////9ra2v/AAAA/11dXf//////eXl5/wAAAP9QUFD/+vr6///////T09P/FBQU/wAAAP8BAQH/AAAA/wAAAP8AAAD/Tk5O/9PT0///////////////////////1tbW/xYXFv8AAABjAAAAnD09Pf/09PT/////////////////6urq/y8vL/8AAAD/m5ub//////+1tbX/BQUF/x0dHf/b29v//////9PT0/8UFBT/AgIC/1NTU/9zc3P/aWlp/yoqKv8AAAD/QEBA/+zs7P/////////////////W1tb/FhcW/wAAAGMAAACcPT09//T09P////////////////+8vLz/CQkJ/xQUFP/R0dH//////+Pj4/8kJCT/AAAA/6SkpP//////09PT/xQUFP8HBwf/vb69////////////w8TD/xMTE/8FBQX/t7e3/////////////////9bW1v8WFxb/AAAAYwAAAJw9PT3/9PT0/////////////////3x8fP8AAAD/Pj4+//Pz8////////Pz8/1dWV/8AAAD/YmJi///////T09P/FBQU/wcHB/+8vLz////////////p6en/JiYm/wAAAP+dnZ3/////////////////1tbW/xYXFv8AAABjAAAAnD09Pf/09PT////////////y8vL/PT09/wAAAP95eXn/////////////////lJSU/wAAAP8pKSn/6enp/9XV1f8UFBT/BwcH/7u7u////////v7+/7i4uP8PDw//AgEC/6urq//////////////////W1tb/FhcW/wAAAGMAAACcPT09//T09P///////////8nJyf8QEBD/BgYG/7W1tf/////////////////Ly8v/ERAR/wYGBv+3t7f/19fX/xQUFP8CAgL/RERE/15eXv9VVVX/Hh4e/wAAAP8lJSX/3d3d/////////////////9bW1v8WFxb/AAAAYwAAAJw9PT3/9PT0////////////srKy/wkJCf8nJyf/5OTk//////////////////Dw8P86Ojr/AgIC/56dnv/b29v/GRkZ/wAAAP8AAAD/AAAA/wAAAP8EBAT/LS0t/6+vr///////////////////////1tbW/xYXFv8AAABjAAAAnD09Pf/09PT////////////19fX/tra2/76+vv/9/f3//////////////////////8bHxv+wsLD/8fHx//j4+P+ysrL/m5ub/5ycnP+cnJz/n6Cf/7a2tv/l5eX////////////////////////////W1tb/FhcW/wAAAGMAAACcPT09//X19f///////////////////////////////////////////////////////////////////////////////////////////v////7//////////////////////////////////////////9fX1/8XFxf/AAAAZAAAAJExMTH/7u7u///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+////////////////ysrK/w8PD/4AAABaAAAAWAkJCfubm5v//v7+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////X19f9tbW3/AAAA5gAAACwAAAAOAAAApREREf9dXV3/f39//4CAgP9/gH//f4B//3+Af/9/gH//f4B//3+Af/9/gH//f4B//3+Af/9/gH//f4B//3+Af/9/gH//f4B//3+Af/9/gH//f4B//3+Af/9/gH//f4B//4CAgP99fX3/SkpK/wYGBvkAAAB4AAAAAQAAAAAAAAAUAAAAfAAAAMYAAADXAAAA1wAAANcAAADXAAAA1wAAANcAAADXAAAA1wAAANcAAADXAAAA1wAAANcAAADXAAAA1wAAANcAAADXAAAA1wAAANcAAADXAAAA1wAAANcAAADXAAAA1wAAANYAAAC7AAAAXwAAAAcAAAAA///+D////gf///wH///4B///8Af///AH///gB+AAAAeAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAM=" class="link-icon"><div class="link-labels"><span class="link-site">VRChat</span> </div></a>
+				</div>
+				<hr>
+				<div class="update">2026/05/24</div>
+			</div>
+		</div>
+	</div>
+	<button class="toggle-screen" id="screenBtn">_</button>
+	<script>
+
+	// "linking starfield", javascript, copyright (c) 2026 GapVR
+
+	const CONFIG =
+	{
+		numStars: 280,
+		speed: 0.6,
+		maxDepth: 100,
+		perspective: 90,
+		spread: 300,
+		connectionDist: 60,
+		pixelScale: 2,		// resolution divisor
+		maxStarSize: 3,		// near = max
+		blinkDuration: 1,	// new lines flash
+		colors:
+		{
+			background: '#030006',
+			lineNormal: { r: 180, g: 0, b: 255 },
+			lineBlink: 'rgba(255, 100, 255, 1)',
+			starHueStart: 280,
+			starHueEnd: 400,
+			starLightnessStart: 25,
+			starLightnessEnd: 95
+		}
+	};
+
+	const canvas = document.getElementById('starfield');
+	const ctx = canvas.getContext('2d');
+
+	let stars = [];
+	let width, height;
+	let centerX, centerY;
+
+	let activeConnections = new Map();
+
+	function initStars()
+	{
+		stars = [];
+		for (let i = 0; i < CONFIG.numStars; i++)
+		{
+			stars.push({
+				x: Math.random() * CONFIG.spread * 2 - CONFIG.spread,
+				y: Math.random() * CONFIG.spread * 2 - CONFIG.spread,
+				z: Math.random() * CONFIG.maxDepth
+			});
+		}
+	}
+
+	function updateStars()
+	{
+		for (let i = 0; i < stars.length; i++)
+		{
+			const star = stars[i];
+			star.z -= CONFIG.speed;
+
+			if (star.z <= 0)
+			{
+				star.z = CONFIG.maxDepth;
+				star.x = Math.random() * CONFIG.spread * 2 - CONFIG.spread;
+				star.y = Math.random() * CONFIG.spread * 2 - CONFIG.spread;
+			}
+
+			const scale = CONFIG.perspective / star.z;
+			star.screenX = Math.floor(centerX + star.x * scale);
+			star.screenY = Math.floor(centerY + star.y * scale);
+		}
+	}
+
+	function drawStars()
+	{
+		ctx.globalCompositeOperation = 'source-over';
+		ctx.fillStyle = CONFIG.colors.background;
+		ctx.fillRect(0, 0, width, height);
+
+		ctx.globalCompositeOperation = 'lighter';
+
+		let nextConnections = new Map();
+		ctx.lineWidth = 1;
+		const cNormal = CONFIG.colors.lineNormal;
+
+		for (let i = 0; i < stars.length; i++)
+		{
+			for (let j = i + 1; j < stars.length; j++)
+			{
+				const dx = stars[i].screenX - stars[j].screenX;
+				const dy = stars[i].screenY - stars[j].screenY;
+				const dist = Math.sqrt(dx * dx + dy * dy);
+
+				if (dist < CONFIG.connectionDist)
+				{
+					const key = i * 10000 + j;
+					let blinkTimer = 0;
+
+					if (!activeConnections.has(key))
+					{
+						blinkTimer = CONFIG.blinkDuration;
+					} else {
+						blinkTimer = Math.max(0, activeConnections.get(key) - 1);
+					}
+					nextConnections.set(key, blinkTimer);
+
+					if (blinkTimer > 0)
+					{
+						ctx.strokeStyle = CONFIG.colors.lineBlink;
+					} else {
+						const opacity = (1 - dist / CONFIG.connectionDist) * 0.5;
+						ctx.strokeStyle = `rgba(${cNormal.r}, ${cNormal.g}, ${cNormal.b}, ${opacity})`;
+					}
+
+					ctx.beginPath();
+					ctx.moveTo(stars[i].screenX, stars[i].screenY);
+					ctx.lineTo(stars[j].screenX, stars[j].screenY);
+					ctx.stroke();
+				}
+			}
+		}
+		activeConnections = nextConnections;
+
+		for (const star of stars)
+		{
+			if (star.screenX >= 0 && star.screenX <= width && star.screenY >= 0 && star.screenY <= height)
+			{
+				const depthFactor = 1 - star.z / CONFIG.maxDepth;
+				const size = Math.max(1, Math.floor(depthFactor * CONFIG.maxStarSize));
+
+				const hue = CONFIG.colors.starHueStart + depthFactor * (CONFIG.colors.starHueEnd - CONFIG.colors.starHueStart);
+				const lightness = CONFIG.colors.starLightnessStart + depthFactor * (CONFIG.colors.starLightnessEnd - CONFIG.colors.starLightnessStart);
+
+				ctx.fillStyle = `hsl(${hue}, 100%, ${lightness}%)`;
+				ctx.fillRect(star.screenX, star.screenY, size, size);
+			}
+		}
+
+		ctx.globalCompositeOperation = 'source-over';
+	}
+
+	function resizeCanvas()
+	{
+		width = Math.floor(window.innerWidth / CONFIG.pixelScale);
+		height = Math.floor(window.innerHeight / CONFIG.pixelScale);
+		centerX = width / 2;
+		centerY = height / 2;
+
+		canvas.width = width;
+		canvas.height = height;
+
+		canvas.style.width = window.innerWidth + 'px';
+		canvas.style.height = window.innerHeight + 'px';
+		canvas.style.imageRendering = 'pixelated';
+
+		initStars();
+	}
+
+	function animate()
+	{
+		updateStars();
+		drawStars();
+		requestAnimationFrame(animate);
+	}
+
+	window.addEventListener('resize', resizeCanvas);
+	resizeCanvas();
+	animate();
+	</script>
+	<script>
+		const card = document.getElementById('mainCard');
+		const btn = document.getElementById('screenBtn');
+		function toggleScreen()
+		{
+			card.classList.toggle('hidden');
+			if (card.classList.contains('hidden'))
+				btn.innerHTML = '️<i><font style="font-size: 0.7rem; font-style: italic; color: grey;">"linking starfield" 2026 </font><font style="font-size: 0.7rem; font-style: italic; color: #EEE;">ぎん(Gin)</font>';
+			else
+				btn.innerHTML = ' _ ';
+		}
+		btn.addEventListener('click', toggleScreen);
+	</script>
+</body>
+</html>
