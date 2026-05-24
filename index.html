@@ -30,7 +30,7 @@
 		.link-desc { color: #a0a0a0; font-size: 0.7rem; letter-spacing: 0.5px; font-weight: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
 		hr { border: none; border-top: 1px solid rgba(100, 100, 110, 0.25); margin: 1.5rem 0; }
 		.update { text-align: center; font-size: 0.7rem; color: #888888; margin-top: 1.5rem; letter-spacing: 1px; }
-		.toggle-screen { position: fixed; bottom: 20px; right: 20px; z-index: 10; background: rgba(255, 255, 255, 0.05);; border: 0; color: #ccc; font-size: 0.5rem; padding: 5px; transition: all 0.2s ease; }
+		.toggle-screen { position: fixed; bottom: 20px; right: 20px; z-index: 10; background: rgba(255, 255, 255, 0.05);; border: 0; color: #ccc; font-size: 0.7rem; padding: 5px; transition: all 0.2s ease; }
 		.toggle-screen:hover { background: rgba(50, 50, 70, 0.9); color: white; border-color: rgba(255, 255, 255, 0.5); }
 	</style>
 </head>
@@ -55,7 +55,7 @@
 			</div>
 		</div>
 	</div>
-	<button class="toggle-screen" id="screenBtn">_</button>
+	<button class="toggle-screen" id="screenBtn"> △ </button>
 	<script>
 
 	// "linking starfield", javascript, copyright (c) 2026 GapVR
@@ -228,9 +228,9 @@
 		{
 			card.classList.toggle('hidden');
 			if (card.classList.contains('hidden'))
-				btn.innerHTML = '️<i><font style="font-size: 0.7rem; font-style: italic; color: grey;">"linking starfield" 2026 </font><font style="font-size: 0.7rem; font-style: italic; color: #EEE;">ぎん(Gin)</font>';
+				btn.innerHTML = '️<i><font style="font-style: italic; color: grey;">"linking starfield" 2026 </font><font style="color: #EEE;">ぎん(Gin)</font>';
 			else
-				btn.innerHTML = ' _ ';
+				btn.innerHTML = ' △ ';
 		}
 		btn.addEventListener('click', toggleScreen);
 	</script>
