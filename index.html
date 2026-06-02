@@ -87,30 +87,30 @@
 	const ctx = canvas.getContext('2d');
 
 	let stars = [];
-	let width, height;
 	let centerX, centerY;
 
 	let activeConnections = new Map();
+	let nextConnections = new Map();
 
-	function initStars()
+	const hueRange = CONFIG.colors.starHueEnd - CONFIG.colors.starHueStart;
+	const lightnessRange = CONFIG.colors.starLightnessEnd - CONFIG.colors.starLightnessStart;
+
+	for (let i = 0; i < CONFIG.numStars; i++)
 	{
-		stars = [];
-		for (let i = 0; i < CONFIG.numStars; i++)
-		{
-			stars.push({
-				x: Math.random() * CONFIG.spread * 2 - CONFIG.spread,
-				y: Math.random() * CONFIG.spread * 2 - CONFIG.spread,
-				z: Math.random() * CONFIG.maxDepth
-			});
-		}
+		stars.push({
+			x: Math.random() * CONFIG.spread * 2 - CONFIG.spread,
+			y: Math.random() * CONFIG.spread * 2 - CONFIG.spread,
+			z: Math.random() * CONFIG.maxDepth,
+			speed: (0.3 + Math.random() * 1.7) * CONFIG.speed
+		});
 	}
 
-	function updateStars()
+	function drawStars()
 	{
 		for (let i = 0; i < stars.length; i++)
 		{
 			const star = stars[i];
-			star.z -= CONFIG.speed;
+			star.z -= star.speed;
 
 			if (star.z <= 0)
 			{
@@ -120,22 +120,19 @@
 			}
 
 			const scale = CONFIG.perspective / star.z;
-			star.screenX = Math.floor(centerX + star.x * scale);
-			star.screenY = Math.floor(centerY + star.y * scale);
+			star.screenX = centerX + star.x * scale;
+			star.screenY = centerY + star.y * scale;
 		}
-	}
 
-	function drawStars()
-	{
 		ctx.globalCompositeOperation = 'source-over';
 		ctx.fillStyle = CONFIG.colors.background;
-		ctx.fillRect(0, 0, width, height);
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 		ctx.globalCompositeOperation = 'lighter';
 
-		let nextConnections = new Map();
-		ctx.lineWidth = 1;
+		nextConnections.clear();
 		const cNormal = CONFIG.colors.lineNormal;
+		const distLimit = CONFIG.connectionDist * CONFIG.connectionDist;
 
 		for (let i = 0; i < stars.length; i++)
 		{
@@ -143,11 +140,11 @@
 			{
 				const dx = stars[i].screenX - stars[j].screenX;
 				const dy = stars[i].screenY - stars[j].screenY;
-				const dist = Math.sqrt(dx * dx + dy * dy);
+				const distSq = dx * dx + dy * dy;
 
-				if (dist < CONFIG.connectionDist)
+				if (distSq < distLimit)
 				{
-					const key = i * 10000 + j;
+					const key = i * CONFIG.numStars + j;
 					let blinkTimer = 0;
 
 					if (!activeConnections.has(key))
@@ -162,64 +159,54 @@
 					{
 						ctx.strokeStyle = CONFIG.colors.lineBlink;
 					} else {
+						const dist = Math.sqrt(distSq);
 						const opacity = (1 - dist / CONFIG.connectionDist) * 0.5;
 						ctx.strokeStyle = `rgba(${cNormal.r}, ${cNormal.g}, ${cNormal.b}, ${opacity})`;
 					}
 
 					ctx.beginPath();
-					ctx.moveTo(stars[i].screenX, stars[i].screenY);
-					ctx.lineTo(stars[j].screenX, stars[j].screenY);
+					ctx.moveTo(Math.round(stars[i].screenX), Math.round(stars[i].screenY));
+					ctx.lineTo(Math.round(stars[j].screenX), Math.round(stars[j].screenY));
 					ctx.stroke();
 				}
 			}
 		}
-		activeConnections = nextConnections;
+		[nextConnections, activeConnections] = [activeConnections, nextConnections];
 
 		for (const star of stars)
 		{
-			if (star.screenX >= 0 && star.screenX <= width && star.screenY >= 0 && star.screenY <= height)
+			if (star.screenX >= 0 && star.screenX <= canvas.width && star.screenY >= 0 && star.screenY <= canvas.height)
 			{
 				const depthFactor = 1 - star.z / CONFIG.maxDepth;
 				const size = Math.max(1, Math.floor(depthFactor * CONFIG.maxStarSize));
 
-				const hue = CONFIG.colors.starHueStart + depthFactor * (CONFIG.colors.starHueEnd - CONFIG.colors.starHueStart);
-				const lightness = CONFIG.colors.starLightnessStart + depthFactor * (CONFIG.colors.starLightnessEnd - CONFIG.colors.starLightnessStart);
+				const hue = CONFIG.colors.starHueStart + depthFactor * hueRange;
+				const lightness = CONFIG.colors.starLightnessStart + depthFactor * lightnessRange;
 
 				ctx.fillStyle = `hsl(${hue}, 100%, ${lightness}%)`;
-				ctx.fillRect(star.screenX, star.screenY, size, size);
+				ctx.fillRect(Math.round(star.screenX), Math.round(star.screenY), size, size);
 			}
 		}
 
-		ctx.globalCompositeOperation = 'source-over';
+		requestAnimationFrame(drawStars);
 	}
 
 	function resizeCanvas()
 	{
-		width = Math.floor(window.innerWidth / CONFIG.pixelScale);
-		height = Math.floor(window.innerHeight / CONFIG.pixelScale);
-		centerX = width / 2;
-		centerY = height / 2;
+		centerX = Math.floor(window.innerWidth / CONFIG.pixelScale) / 2;
+		centerY = Math.floor(window.innerHeight / CONFIG.pixelScale) / 2;
 
-		canvas.width = width;
-		canvas.height = height;
+		canvas.width = Math.floor(window.innerWidth / CONFIG.pixelScale);
+		canvas.height = Math.floor(window.innerHeight / CONFIG.pixelScale);
 
 		canvas.style.width = window.innerWidth + 'px';
 		canvas.style.height = window.innerHeight + 'px';
 		canvas.style.imageRendering = 'pixelated';
-
-		initStars();
-	}
-
-	function animate()
-	{
-		updateStars();
-		drawStars();
-		requestAnimationFrame(animate);
 	}
 
 	window.addEventListener('resize', resizeCanvas);
 	resizeCanvas();
-	animate();
+	drawStars();
 	</script>
 	<script>
 		const card = document.getElementById('mainCard');
